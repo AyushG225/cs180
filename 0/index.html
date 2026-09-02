@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 0 · Becoming Friends with Your Camera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #faf7f2;
+    --ink: #221f1b;
+    --muted: #6e6659;
+    --accent: #b4552d;
+    --line: #e6dfd3;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; padding: 0 24px 96px; }
+  header { padding: 72px 0 40px; border-bottom: 1px solid var(--line); }
+  .crumb { font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+  .crumb a { color: var(--accent); text-decoration: none; }
+  .crumb a:hover { text-decoration: underline; }
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(38px, 6vw, 58px);
+    font-weight: 700;
+    line-height: 1.08;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+  .byline { color: var(--muted); font-size: 16px; }
+  .byline a { color: var(--accent); text-decoration: none; }
+  section { padding-top: 64px; }
+  h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 600;
+    margin: 0 0 6px;
+  }
+  .kicker {
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  p { margin: 14px 0; max-width: 68ch; }
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 28px 0 8px;
+  }
+  @media (max-width: 640px) { .pair { grid-template-columns: 1fr; } }
+  figure { margin: 0; }
+  figure img, .gif-wrap img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 10px;
+    box-shadow: 0 2px 14px rgba(34, 31, 27, 0.12);
+  }
+  figcaption {
+    font-size: 14px;
+    color: var(--muted);
+    padding: 10px 4px 0;
+    text-align: center;
+  }
+  figcaption strong { color: var(--ink); font-weight: 600; }
+  .gif-wrap { max-width: 480px; margin: 28px auto 8px; }
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+    margin: 26px 0 6px;
+  }
+  @media (max-width: 640px) { .strip { grid-template-columns: repeat(4, 1fr); } }
+  .strip figure img { border-radius: 6px; box-shadow: 0 1px 6px rgba(34, 31, 27, 0.12); }
+  .strip figcaption { font-size: 12px; padding-top: 6px; }
+  footer {
+    margin-top: 88px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="crumb"><a href="../">Ayush Ghosh</a> · CS 180, Fall 2026 · <a href="https://ayushg225.github.io/cs180/0/">ayushg225.github.io/cs180/0/</a></div>
+    <h1>Project 0: Becoming Friends with Your&nbsp;Camera</h1>
+  </header>
+
+  <section id="part1">
+    <h2>Part 1: Selfie — The Wrong Way vs. The Right Way</h2>
+    <div class="pair">
+      <figure>
+        <img src="media/part1-close-24mm.jpg" alt="Close-up selfie taken at arm's length with a wide 24mm-equivalent lens, showing perspective distortion">
+        <figcaption><strong>The wrong way:</strong> close up, 24mm equivalent</figcaption>
+      </figure>
+      <figure>
+        <img src="media/part1-zoom-121mm.jpg" alt="Portrait taken from several feet away zoomed to 121mm equivalent, showing natural facial proportions">
+        <figcaption><strong>The right way:</strong> several feet back, zoomed to 121mm equivalent</figcaption>
+      </figure>
+    </div>
+    <p>The first photo of my friend was taken up close with the wide lens (24mm equivalent); for the second I stepped back several feet and zoomed to 121mm so his face stays the same size. The close-up looks distorted because a camera magnifies objects in proportion to 1/distance: up close, his nose is significantly closer to the lens than his ears, so it gets magnified more and the face looks stretched forward. From farther back, the depth of the face is small relative to the camera distance, so every feature is magnified nearly equally and the proportions look natural.</p>
+  </section>
+
+  <section id="part2">
+    <h2>Part 2: Architectural Perspective Compression</h2>
+    <div class="pair">
+      <figure>
+        <img src="media/part2-zoom-76mm.jpg" alt="Apartment building photographed from far away with zoom, appearing flat and compressed">
+        <figcaption><strong>Far away + zoomed in</strong> (76mm equivalent)</figcaption>
+      </figure>
+      <figure>
+        <img src="media/part2-wide-24mm.jpg" alt="Same building photographed up close with a wide lens, showing converging lines and dramatic sky">
+        <figcaption><strong>Up close + no zoom</strong> (24mm equivalent)</figcaption>
+      </figure>
+    </div>
+    <p>Both photos show the building at about the same size. The first was taken from far away zoomed to 76mm; the second up close at 24mm. The zoomed photo looks flat because from far away every part of the façade is at nearly the same distance from the camera, so everything is rendered at nearly the same scale. Up close, the nearest parts of the building are much closer than the farthest parts, so scale changes across the frame and the vertical lines converge. Perspective is determined by the camera's position, not the focal length — zooming only crops the view, while moving changes the geometry.</p>
+  </section>
+
+  <section id="part3">
+    <h2>Part 3: The Dolly Zoom</h2>
+    <div class="gif-wrap">
+      <figure>
+        <img src="media/dollyzoom.gif" alt="Animated dolly zoom of a bass guitar on a chair: the guitar stays the same size while the background compresses and expands">
+        <figcaption>Eight frames, walking backward while zooming 24mm → 108mm</figcaption>
+      </figure>
+    </div>
+    <p>I took eight photos while walking backward and zooming in (24mm → 108mm), keeping the bass the same size in every frame, then combined them into a looping GIF. Walking backward changes the center of projection, which shrinks the background relative to the subject; zooming in magnifies everything uniformly. Doing both at once cancels the size change on the subject but not on the background, so the background appears to grow behind the subject — the dolly zoom effect.</p>
+    <div class="strip">
+      <figure><img src="media/dolly-1.jpg" alt="Dolly zoom frame 1, 24mm"><figcaption>24mm</figcaption></figure>
+      <figure><img src="media/dolly-2.jpg" alt="Dolly zoom frame 2, 30mm"><figcaption>30mm</figcaption></figure>
+      <figure><img src="media/dolly-3.jpg" alt="Dolly zoom frame 3, 36mm"><figcaption>36mm</figcaption></figure>
+      <figure><img src="media/dolly-4.jpg" alt="Dolly zoom frame 4, 45mm"><figcaption>45mm</figcaption></figure>
+      <figure><img src="media/dolly-5.jpg" alt="Dolly zoom frame 5, 54mm"><figcaption>54mm</figcaption></figure>
+      <figure><img src="media/dolly-6.jpg" alt="Dolly zoom frame 6, 72mm"><figcaption>72mm</figcaption></figure>
+      <figure><img src="media/dolly-7.jpg" alt="Dolly zoom frame 7, 98mm"><figcaption>98mm</figcaption></figure>
+      <figure><img src="media/dolly-8.jpg" alt="Dolly zoom frame 8, 108mm"><figcaption>108mm</figcaption></figure>
+    </div>
+  </section>
+
+  <footer>
+    <div>Ayush Ghosh · CS 180: Intro to Computer Vision &amp; Computational Photography · UC Berkeley, Fall 2026</div>
+    <div><a href="../">← All projects</a></div>
+  </footer>
+
+</div>
+</body>
+</html>
