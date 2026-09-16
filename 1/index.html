@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project 1 · Colorizing the Prokudin-Gorskii Photo Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #faf7f2;
+    --ink: #221f1b;
+    --muted: #6e6659;
+    --accent: #b4552d;
+    --line: #e6dfd3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 17px;
+    line-height: 1.65;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px 96px; }
+  header { padding: 72px 0 40px; border-bottom: 1px solid var(--line); }
+  .crumb { font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 18px; }
+  .crumb a { color: var(--accent); text-decoration: none; }
+  .crumb a:hover { text-decoration: underline; }
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(36px, 5.5vw, 54px);
+    font-weight: 700;
+    line-height: 1.08;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+  section { padding-top: 64px; }
+  h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(26px, 4vw, 34px);
+    font-weight: 600;
+    margin: 0 0 18px;
+  }
+  h3 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 40px 0 10px;
+  }
+  p { margin: 14px 0; max-width: 72ch; }
+  ul { margin: 6px 0 14px; padding-left: 24px; max-width: 72ch; }
+  li { margin: 4px 0; }
+  .todo {
+    border: 1px dashed var(--accent);
+    background: rgba(180, 85, 45, 0.06);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--muted);
+    font-style: italic;
+    max-width: none;
+  }
+  .pair, .trio {
+    display: grid;
+    gap: 18px;
+    margin: 20px 0 8px;
+  }
+  .pair { grid-template-columns: 1fr 1fr; }
+  .trio { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 640px) { .pair, .trio { grid-template-columns: 1fr; } }
+  figure { margin: 0; }
+  figure img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(34, 31, 27, 0.12);
+    background: #ddd;
+  }
+  figcaption {
+    font-size: 14px;
+    color: var(--muted);
+    padding: 8px 4px 0;
+    text-align: center;
+    line-height: 1.45;
+  }
+  figcaption strong { color: var(--ink); font-weight: 600; }
+  .plate { max-width: 260px; margin: 20px auto 8px; }
+  .item { margin-top: 36px; }
+  .item h4 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 4px;
+  }
+  .item .meta { font-size: 14px; color: var(--muted); }
+  .item .meta code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; color: var(--ink); }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+    font-size: 14.5px;
+  }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { font-weight: 600; font-size: 13px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+  td code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  .table-wrap { overflow-x: auto; }
+  .bad { color: var(--accent); font-weight: 600; }
+  footer {
+    margin-top: 88px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="crumb"><a href="../">Ayush Ghosh</a> · CS 180, Fall 2026 · <a href="https://ayushg225.github.io/cs180/1/">ayushg225.github.io/cs180/1/</a></div>
+    <h1>Project 1: Colorizing the Prokudin-Gorskii Photo&nbsp;Collection</h1>
+  </header>
+
+  <section id="overview">
+    <h2>Overview</h2>
+    <p>Prokudin-Gorskii's photographs were captured as three separate exposures on glass negative plates, one each through a blue, green, and red filter. Stacking the three plates as the B, G, and R channels of a single image should produce a color photograph, but the plates are not aligned with each other: each exposure is shifted by some number of pixels, so simply stacking them gives a blurry image with colored fringes. The goal of this project is to find the shift for each plate efficiently so that the three channels line up. I do this by searching over possible displacements and scoring each one with a similarity metric between two channels, either the L2 distance or normalized cross-correlation (NCC), and keeping the displacement that matches best.</p>
+    <div class="plate">
+      <figure>
+        <img src="media/cathedral_plate.jpg" alt="Raw Prokudin-Gorskii glass plate scan of the cathedral: three stacked exposures, blue on top, green in the middle, red on the bottom">
+        <figcaption>Raw glass plate (<code>cathedral.jpg</code>): B, G, R exposures stacked top to bottom</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="single">
+    <h2>Part 1: Single-Scale Alignment</h2>
+    <p>For single-scale alignment I first split the plate into three equal parts by height: the top third is the B channel, the middle is G, and the bottom is R. I keep B fixed and align G and R to it. For each of the two channels I do an exhaustive search over every shift from −15 to 15 pixels in both x and y, which is 31² = 961 candidate shifts. Each candidate is applied with <code>np.roll</code>, scored against B, and the shift with the best score is kept. Before scoring I crop 8% off each border of both channels so the black plate edges and the pixels that wrap around from rolling do not affect the score.</p>
+    <p>I use two metrics to score how well a shifted channel matches B.</p>
+    <p><strong>L2</strong> is the square root of the sum of squared pixel differences between the two channels. Each pixel contributes the square of its difference:</p>
+    <ul>
+      <li>same intensity in both channels: contributes 0</li>
+      <li>slightly different: contributes a little</li>
+      <li>very different, for example an edge in one channel landing on a flat area in the other: contributes a lot, and squaring makes large mismatches count far more than small ones</li>
+    </ul>
+    <p>So the sum is small when the two channels agree pixel by pixel and grows as more pixels disagree or disagree by more. Lower is better, so I pick the shift that minimizes it. L2 compares raw intensities, so it assumes the two channels have roughly similar brightness.</p>
+    <p><strong>NCC</strong> first subtracts each channel's mean, so every value is how far that pixel is above or below its own channel's average, then normalizes each channel to unit length, flattens both, and takes their dot product. Each pixel contributes the product of its two values:</p>
+    <ul>
+      <li>both brighter than average: positive × positive, adds to the score</li>
+      <li>both darker than average: negative × negative, adds to the score</li>
+      <li>one brighter and one darker: positive × negative, subtracts from the score</li>
+    </ul>
+    <p>So the sum is large and positive when the two channels agree about where the bright and dark spots are, near zero when they are unrelated, and negative when they are opposite. Dividing by the norms scales the result to the range [−1, 1], where 1 means the two channels have exactly the same pattern. Higher is better, so I pick the shift that maximizes it. Because the mean and contrast are removed, NCC only compares the pattern of light and dark, so it does not care if one channel is overall brighter or has more contrast than the other, which L2 does.</p>
+    <p>Both metrics gave exactly the same offsets on cathedral, monastery, and tobolsk.</p>
+
+    <div class="item">
+      <h4>Cathedral</h4>
+      <div class="trio">
+        <figure><img src="media/cathedral_naive.jpg" alt="Cathedral, channels stacked without alignment"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/cathedral_l2_single.jpg" alt="Cathedral aligned with L2"><figcaption><strong>L2</strong><br>G (x, y) = (2, 5)<br>R (x, y) = (3, 12)</figcaption></figure>
+        <figure><img src="media/cathedral_ncc_single.jpg" alt="Cathedral aligned with NCC"><figcaption><strong>NCC</strong><br>G (x, y) = (2, 5)<br>R (x, y) = (3, 12)</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Monastery</h4>
+      <div class="trio">
+        <figure><img src="media/monastery_naive.jpg" alt="Monastery, channels stacked without alignment"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/monastery_l2_single.jpg" alt="Monastery aligned with L2"><figcaption><strong>L2</strong><br>G (x, y) = (2, −3)<br>R (x, y) = (2, 3)</figcaption></figure>
+        <figure><img src="media/monastery_ncc_single.jpg" alt="Monastery aligned with NCC"><figcaption><strong>NCC</strong><br>G (x, y) = (2, −3)<br>R (x, y) = (2, 3)</figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Tobolsk</h4>
+      <div class="trio">
+        <figure><img src="media/tobolsk_naive.jpg" alt="Tobolsk, channels stacked without alignment"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/tobolsk_l2_single.jpg" alt="Tobolsk aligned with L2"><figcaption><strong>L2</strong><br>G (x, y) = (3, 3)<br>R (x, y) = (3, 6)</figcaption></figure>
+        <figure><img src="media/tobolsk_ncc_single.jpg" alt="Tobolsk aligned with NCC"><figcaption><strong>NCC</strong><br>G (x, y) = (3, 3)<br>R (x, y) = (3, 6)</figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="pyramid">
+    <h2>Part 2: Multi-Scale Pyramid Alignment</h2>
+    <p>The single-scale approach works on the small JPGs, but it does not scale to the full-resolution .tif plates. Those channels are around 3600 × 3200 pixels and their true offsets are much larger than 15 pixels (up to 178 pixels for melons), so a ±15 window cannot find them. Widening the window does not help either: an exhaustive search costs the square of the window size, and each candidate has to be scored over every pixel of a much larger image, so the cost blows up quickly.</p>
+    <p>The fix is an image pyramid. Instead of searching the full-resolution image directly, I repeatedly downsample the two channels until they are small, get a rough estimate of the offset on the coarsest version where an exhaustive search is cheap, and then work back up to full resolution, making only small corrections at each level.</p>
+    <p>I implemented the downsampling myself: each step replaces every 2 × 2 block of pixels with its mean, halving the width and height. Starting from the full-resolution channel I downsample four times (depth 4), so the coarsest level is 1/16 the size in each dimension; the recursion also stops early if a channel gets smaller than 200 pixels on a side, which is why the small JPGs only downsample once. At the coarsest level I run the same exhaustive ±15 search from Part 1 (31 × 31 = 961 candidates). Because that image is 16 times smaller, a 15 pixel shift there corresponds to 240 pixels at full resolution, which is enough to cover every offset in the dataset. Then, at each finer level, I double the offset found at the level below (since the image is twice as large), apply it, and refine it with a small ±2 search (5 × 5 = 25 candidates) to correct any error from the coarser estimate. After the last level the accumulated offset is the final alignment.</p>
+    <p>This is done separately for G and R against B, with the same fixed parameters for every image. Each .tif takes about 1.2 to 2.2 seconds for both channels, well under the one minute budget. All 14 provided images and my three Library of Congress images aligned correctly with NCC except emir, which is discussed in the failure analysis below.</p>
+
+    <div class="item">
+      <h4>Cathedral</h4>
+      <div class="meta">NCC: G (x, y) = <code>(2, 5)</code>, R (x, y) = <code>(3, 12)</code> · L2: G <code>(2, 5)</code>, R <code>(3, 12)</code></div>
+      <div class="pair">
+        <figure><img src="media/cathedral_naive.jpg" alt="Cathedral unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/cathedral_ncc_multi.jpg" alt="Cathedral aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Monastery</h4>
+      <div class="meta">NCC: G (x, y) = <code>(2, −3)</code>, R (x, y) = <code>(2, 3)</code> · L2: G <code>(2, −3)</code>, R <code>(2, 3)</code></div>
+      <div class="pair">
+        <figure><img src="media/monastery_naive.jpg" alt="Monastery unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/monastery_ncc_multi.jpg" alt="Monastery aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Tobolsk</h4>
+      <div class="meta">NCC: G (x, y) = <code>(3, 3)</code>, R (x, y) = <code>(3, 6)</code> · L2: G <code>(3, 3)</code>, R <code>(3, 6)</code></div>
+      <div class="pair">
+        <figure><img src="media/tobolsk_naive.jpg" alt="Tobolsk unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/tobolsk_ncc_multi.jpg" alt="Tobolsk aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Church</h4>
+      <div class="meta">NCC: G (x, y) = <code>(4, 25)</code>, R (x, y) = <code>(−4, 58)</code> · L2: G <code>(4, 25)</code>, R <code class="bad">(185, 62)</code></div>
+      <div class="pair">
+        <figure><img src="media/church_naive.jpg" alt="Church unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/church_ncc_multi.jpg" alt="Church aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Emir</h4>
+      <div class="meta">NCC: G (x, y) = <code>(24, 49)</code>, R (x, y) = <code>(56, 104)</code> · L2: G <code>(24, 49)</code>, R <code>(56, 103)</code></div>
+      <div class="pair">
+        <figure><img src="media/emir_naive.jpg" alt="Emir unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/emir_ncc_multi.jpg" alt="Emir aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Harvesters</h4>
+      <div class="meta">NCC: G (x, y) = <code>(17, 60)</code>, R (x, y) = <code>(13, 124)</code> · L2: G <code>(16, 60)</code>, R <code>(13, 124)</code></div>
+      <div class="pair">
+        <figure><img src="media/harvesters_naive.jpg" alt="Harvesters unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/harvesters_ncc_multi.jpg" alt="Harvesters aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Icon</h4>
+      <div class="meta">NCC: G (x, y) = <code>(17, 41)</code>, R (x, y) = <code>(23, 89)</code> · L2: G <code>(17, 41)</code>, R <code>(23, 89)</code></div>
+      <div class="pair">
+        <figure><img src="media/icon_naive.jpg" alt="Icon unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/icon_ncc_multi.jpg" alt="Icon aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Ilemselga</h4>
+      <div class="meta">NCC: G (x, y) = <code>(7, 40)</code>, R (x, y) = <code>(11, 130)</code> · L2: G <code>(7, 39)</code>, R <code>(11, 129)</code></div>
+      <div class="pair">
+        <figure><img src="media/ilemselga_naive.jpg" alt="Ilemselga unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/ilemselga_ncc_multi.jpg" alt="Ilemselga aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Melons</h4>
+      <div class="meta">NCC: G (x, y) = <code>(10, 82)</code>, R (x, y) = <code>(13, 178)</code> · L2: G <code>(11, 82)</code>, R <code>(13, 178)</code></div>
+      <div class="pair">
+        <figure><img src="media/melons_naive.jpg" alt="Melons unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/melons_ncc_multi.jpg" alt="Melons aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Religious Painting</h4>
+      <div class="meta">NCC: G (x, y) = <code>(3, 28)</code>, R (x, y) = <code>(7, 68)</code> · L2: G <code>(3, 28)</code>, R <code>(7, 68)</code></div>
+      <div class="pair">
+        <figure><img src="media/religous_painting_naive.jpg" alt="Religious painting unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/religous_painting_ncc_multi.jpg" alt="Religious painting aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Self Portrait</h4>
+      <div class="meta">NCC: G (x, y) = <code>(29, 79)</code>, R (x, y) = <code>(36, 176)</code> · L2: G <code>(29, 79)</code>, R <code>(36, 176)</code></div>
+      <div class="pair">
+        <figure><img src="media/self_portrait_naive.jpg" alt="Self portrait unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/self_portrait_ncc_multi.jpg" alt="Self portrait aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Siren</h4>
+      <div class="meta">NCC: G (x, y) = <code>(−6, 49)</code>, R (x, y) = <code>(−25, 96)</code> · L2: G <code>(−6, 49)</code>, R <code>(−25, 96)</code></div>
+      <div class="pair">
+        <figure><img src="media/siren_naive.jpg" alt="Siren unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/siren_ncc_multi.jpg" alt="Siren aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Three Generations</h4>
+      <div class="meta">NCC: G (x, y) = <code>(14, 53)</code>, R (x, y) = <code>(11, 112)</code> · L2: G <code>(14, 53)</code>, R <code>(11, 112)</code></div>
+      <div class="pair">
+        <figure><img src="media/three_generations_naive.jpg" alt="Three generations unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/three_generations_ncc_multi.jpg" alt="Three generations aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Wharf</h4>
+      <div class="meta">NCC: G (x, y) = <code>(−7, 15)</code>, R (x, y) = <code>(−16, 83)</code> · L2: G <code>(−7, 15)</code>, R <code>(−16, 83)</code></div>
+      <div class="pair">
+        <figure><img src="media/wharf_naive.jpg" alt="Wharf unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/wharf_ncc_multi.jpg" alt="Wharf aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <h3>Displacement offsets</h3>
+    <p>Each offset is the (x, y) shift in full-resolution pixels applied to the G or R channel to align it to B, with positive x to the right and positive y down. Both metrics are listed; they agree to within one pixel on every image except church with L2.</p>
+    <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Image</th><th>G (x, y), NCC</th><th>R (x, y), NCC</th><th>G (x, y), L2</th><th>R (x, y), L2</th><th>Time (NCC)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>cathedral.jpg</td><td><code>(2, 5)</code></td><td><code>(3, 12)</code></td><td><code>(2, 5)</code></td><td><code>(3, 12)</code></td><td>0.15 s</td></tr>
+        <tr><td>monastery.jpg</td><td><code>(2, −3)</code></td><td><code>(2, 3)</code></td><td><code>(2, −3)</code></td><td><code>(2, 3)</code></td><td>0.14 s</td></tr>
+        <tr><td>tobolsk.jpg</td><td><code>(3, 3)</code></td><td><code>(3, 6)</code></td><td><code>(3, 3)</code></td><td><code>(3, 6)</code></td><td>0.15 s</td></tr>
+        <tr><td>church.tif</td><td><code>(4, 25)</code></td><td><code>(−4, 58)</code></td><td><code>(4, 25)</code></td><td><code class="bad">(185, 62)</code></td><td>1.57 s</td></tr>
+        <tr><td>emir.tif</td><td><code>(24, 49)</code></td><td><code>(56, 104)</code></td><td><code>(24, 49)</code></td><td><code>(56, 103)</code></td><td>1.80 s</td></tr>
+        <tr><td>harvesters.tif</td><td><code>(17, 60)</code></td><td><code>(13, 124)</code></td><td><code>(16, 60)</code></td><td><code>(13, 124)</code></td><td>1.77 s</td></tr>
+        <tr><td>icon.tif</td><td><code>(17, 41)</code></td><td><code>(23, 89)</code></td><td><code>(17, 41)</code></td><td><code>(23, 89)</code></td><td>1.74 s</td></tr>
+        <tr><td>ilemselga.tif</td><td><code>(7, 40)</code></td><td><code>(11, 130)</code></td><td><code>(7, 39)</code></td><td><code>(11, 129)</code></td><td>1.81 s</td></tr>
+        <tr><td>melons.tif</td><td><code>(10, 82)</code></td><td><code>(13, 178)</code></td><td><code>(11, 82)</code></td><td><code>(13, 178)</code></td><td>1.70 s</td></tr>
+        <tr><td>religous_painting.tif</td><td><code>(3, 28)</code></td><td><code>(7, 68)</code></td><td><code>(3, 28)</code></td><td><code>(7, 68)</code></td><td>1.68 s</td></tr>
+        <tr><td>self_portrait.tif</td><td><code>(29, 79)</code></td><td><code>(36, 176)</code></td><td><code>(29, 79)</code></td><td><code>(36, 176)</code></td><td>1.76 s</td></tr>
+        <tr><td>siren.tif</td><td><code>(−6, 49)</code></td><td><code>(−25, 96)</code></td><td><code>(−6, 49)</code></td><td><code>(−25, 96)</code></td><td>1.76 s</td></tr>
+        <tr><td>three_generations.tif</td><td><code>(14, 53)</code></td><td><code>(11, 112)</code></td><td><code>(14, 53)</code></td><td><code>(11, 112)</code></td><td>1.70 s</td></tr>
+        <tr><td>wharf.tif</td><td><code>(−7, 15)</code></td><td><code>(−16, 83)</code></td><td><code>(−7, 15)</code></td><td><code>(−16, 83)</code></td><td>1.69 s</td></tr>
+        <tr><td>loc_1.tif</td><td><code>(38, 48)</code></td><td><code>(55, 107)</code></td><td><code>(38, 48)</code></td><td><code>(55, 108)</code></td><td>1.66 s</td></tr>
+        <tr><td>loc_2.tif</td><td><code>(−2, 42)</code></td><td><code>(9, 97)</code></td><td><code>(−2, 42)</code></td><td><code>(9, 97)</code></td><td>2.19 s</td></tr>
+        <tr><td>loc_3.tif</td><td><code>(27, 21)</code></td><td><code>(54, 109)</code></td><td><code>(27, 21)</code></td><td><code>(53, 108)</code></td><td>1.72 s</td></tr>
+      </tbody>
+    </table>
+    </div>
+
+    <h3>L2 vs. NCC</h3>
+    <p>The only image where the choice of metric mattered is church. L2 picks an R offset of (185, 62) and leaves a visible red ghost of the church, while NCC finds (−4, 58) and aligns it correctly. The frame is mostly sky and water, which are bright in the blue channel but dark in red, so the two channels differ a lot in overall brightness. L2 compares raw intensities and can prefer a shift that matches brightness levels rather than structure; NCC removes the mean and contrast first, so it is not fooled. For that reason I use NCC as the primary metric for all results shown above.</p>
+    <div class="pair">
+      <figure><img src="media/church_l2_multi.jpg" alt="Church aligned with pyramid L2, red channel misaligned"><figcaption><strong>L2</strong><br>R (x, y) = (185, 62)</figcaption></figure>
+      <figure><img src="media/church_ncc_multi.jpg" alt="Church aligned with pyramid NCC"><figcaption><strong>NCC</strong><br>R (x, y) = (−4, 58)</figcaption></figure>
+    </div>
+  </section>
+
+  <section id="loc">
+    <h2>Part 3: Images of My Choosing</h2>
+    <p>For my own images I picked three plates from the Library of Congress collection: a Turkmen woman standing at the entrance of a yurt, a landscape of a pond and meadow, and a small sphinx-shaped candlestick on a table. All three aligned correctly with the same parameters. The slight ghosting on the woman's jewelry in the first image is from her moving between the exposures, not from misalignment.</p>
+
+    <div class="item">
+      <h4>Turkmen woman at a yurt (loc_1)</h4>
+      <div class="meta">NCC: G (x, y) = <code>(38, 48)</code>, R (x, y) = <code>(55, 107)</code> · L2: G <code>(38, 48)</code>, R <code>(55, 108)</code></div>
+      <div class="pair">
+        <figure><img src="media/loc_1_naive.jpg" alt="Library of Congress plate 1 unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/loc_1_ncc_multi.jpg" alt="Library of Congress plate 1 aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Pond and hay meadow (loc_2)</h4>
+      <div class="meta">NCC: G (x, y) = <code>(−2, 42)</code>, R (x, y) = <code>(9, 97)</code> · L2: G <code>(−2, 42)</code>, R <code>(9, 97)</code></div>
+      <div class="pair">
+        <figure><img src="media/loc_2_naive.jpg" alt="Library of Congress plate 2 unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/loc_2_ncc_multi.jpg" alt="Library of Congress plate 2 aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+
+    <div class="item">
+      <h4>Sphinx candlestick (loc_3)</h4>
+      <div class="meta">NCC: G (x, y) = <code>(27, 21)</code>, R (x, y) = <code>(54, 109)</code> · L2: G <code>(27, 21)</code>, R <code>(53, 108)</code></div>
+      <div class="pair">
+        <figure><img src="media/loc_3_naive.jpg" alt="Library of Congress plate 3 unaligned"><figcaption><strong>Unaligned</strong></figcaption></figure>
+        <figure><img src="media/loc_3_ncc_multi.jpg" alt="Library of Congress plate 3 aligned with pyramid NCC"><figcaption><strong>Aligned (pyramid, NCC)</strong></figcaption></figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="failures">
+    <h2>Failure Analysis</h2>
+    <p>Emir is the one image that did not align. With both metrics the R channel lands at about (56, 104), roughly 16 pixels off horizontally from where it should be, and the red channel visibly fringes on the robe and turban in the crop below. G aligns fine. The cause is the assumption behind both metrics: they expect the channels to be brightest and darkest in the same places. The emir's robe covers a large part of the frame and is bright in the blue channel but dark in red, so over that whole region R and B are anti-correlated rather than correlated, and the shift that scores best against B is not the true alignment. Two fixes would be to align R to G instead of B, since the red and green channels are much more similar for this scene, or to compare edges or gradients instead of raw intensities, since an edge appears in the same place in every channel regardless of its color. I also checked that pyramid depth was not the problem: depths 3 and 4 give the same offset, and depth 5 makes it worse, returning (−407, 353), because the coarsest image becomes too small to search reliably.</p>
+    <div class="pair">
+      <figure><img src="media/emir_ncc_multi.jpg" alt="Emir aligned with pyramid NCC, red channel slightly misaligned"><figcaption><strong>Emir, pyramid NCC</strong><br>R (x, y) = (56, 104)</figcaption></figure>
+      <figure><img src="media/emir_ncc_multi_crop.jpg" alt="1:1 crop of the emir result showing red-channel fringing"><figcaption><strong>1:1 crop</strong> showing the red-channel offset</figcaption></figure>
+    </div>
+  </section>
+
+  <footer>
+    <div>Ayush Ghosh · CS 180: Intro to Computer Vision &amp; Computational Photography · UC Berkeley, Fall 2026</div>
+    <div><a href="../">← All projects</a></div>
+  </footer>
+
+</div>
+</body>
+</html>
