@@ -275,6 +275,65 @@ H  =  ⎢ 3.6423e-01   1.5613e+00  -2.4116e+02 ⎥
     <figure class="wide"><img src="media/mosaic_forest_two_band.jpg" alt="Wooded path mosaic"><figcaption>Wooded path mosaic with two band blending.</figcaption></figure>
   </section>
 
+  <section id="partb">
+    <h2 class="part">Part B: Feature Matching for Autostitching</h2>
+    <p>In Part B I replace the clicked correspondences with ones found automatically, following a simplified version of "Multi-Image Matching using Multi-Scale Oriented Patches" by Brown et al. I detect Harris corners, thin them out with adaptive non-maximal suppression, describe each corner with a normalized 8 by 8 patch, match the descriptors between photos with Lowe's ratio test, and use RANSAC to keep only the matches that agree with a single homography. The warping and blending are the same code as Part A.</p>
+  </section>
+
+  <section id="b1">
+    <h2>B.1 Harris Corner Detection</h2>
+    <p>I used the provided <code>get_harris_corners</code>, which computes the Harris corner strength at a single scale, takes every local maximum as a corner, and discards corners within 20 pixels of the border. On hilgard_1 this gives 18,936 corners, which cover almost the whole image because even weak local maxima in the sky and the grass count.</p>
+    <figure class="wide"><img src="media/b1_harris.jpg" alt="All Harris corners overlaid on hilgard_1"><figcaption>All 18,936 Harris corners on hilgard_1.</figcaption></figure>
+    <h3>Adaptive Non-Maximal Suppression</h3>
+    <p>Keeping only the strongest corners would cluster them on the high contrast parts of the image, so I use adaptive non-maximal suppression to pick corners that are both strong and spread out. Each corner x<sub>i</sub> gets a suppression radius r<sub>i</sub>, the distance to the nearest corner that is significantly stronger, meaning the nearest x<sub>j</sub> with f(x<sub>i</sub>) &lt; c<sub>robust</sub> f(x<sub>j</sub>), where f is the Harris strength and c<sub>robust</sub> = 0.9. I keep the 500 corners with the largest radii, so a corner survives when it is the strongest one in a large neighborhood. Computing every pairwise distance for all of the corners would take too much memory, so I only consider the 5,000 strongest corners as candidates.</p>
+    <figure class="wide"><img src="media/b1_anms.jpg" alt="The 500 corners kept by ANMS on hilgard_1"><figcaption>The 500 corners kept after ANMS.</figcaption></figure>
+  </section>
+
+  <section id="b2">
+    <h2>B.2 Feature Descriptor Extraction</h2>
+    <p>For each corner I take the axis aligned 40 by 40 window around it and sample it down to an 8 by 8 patch by keeping every fifth pixel. The image is first blurred with a Gaussian of σ = 2.5, so that each sample summarizes its neighborhood and the subsampling does not alias. Each patch is then bias and gain normalized by subtracting its mean and dividing by its standard deviation, which makes the descriptor insensitive to brightness and contrast differences between photos, and flattened into a vector of 64 values.</p>
+    <figure class="wide"><img src="media/b2_descriptors.jpg" alt="Ten of the normalized 8 by 8 descriptors from hilgard_1"><figcaption>Ten of the 500 normalized 8 by 8 descriptors from hilgard_1, labeled by corner index.</figcaption></figure>
+  </section>
+
+  <section id="b3">
+    <h2>B.3 Feature Matching</h2>
+    <p>For every descriptor in the first photo I compute the squared distance to every descriptor in the second photo and find its first and second nearest neighbors. Following Lowe, I keep a match only when the ratio of the first distance to the second is below a threshold, because a correct match is much closer than any other candidate while a wrong or ambiguous one has a second neighbor that is almost as close. I use a threshold of 0.6, based on Figure 6b of the paper, where correct matches concentrate at low ratios and incorrect matches near 1. On hilgard_1 and hilgard_2 this leaves 137 matches, and some of them are still wrong, like the long diagonal lines below.</p>
+    <figure class="wide"><img src="media/b3_matches.jpg" alt="Matches between hilgard_1 and hilgard_2 after the ratio test"><figcaption>The 137 matches between hilgard_1 and hilgard_2 after the ratio test.</figcaption></figure>
+    <figure class="wide"><img src="media/b3_matches_street.jpg" alt="Matches between street_1 and street_2 after the ratio test"><figcaption>The 160 matches between street_1 and street_2 after the ratio test.</figcaption></figure>
+    <figure class="wide"><img src="media/b3_matches_forest.jpg" alt="Matches between forest_1 and forest_2 after the ratio test"><figcaption>The 95 matches between forest_1 and forest_2 after the ratio test.</figcaption></figure>
+  </section>
+
+  <section id="b4">
+    <h2>B.4 RANSAC for Robust Homography</h2>
+    <p>Least squares on all of the matches would be thrown off by the wrong ones, so I use 4 point RANSAC. Each iteration picks 4 matches at random, computes the homography from them with <code>computeH</code> from Part A, maps every point of the first photo through it, and counts the inliers, the matches that land within 2 pixels of their partner. After 2,000 iterations I keep the largest set of inliers and recompute the homography from all of them with least squares.</p>
+    <figure class="wide"><img src="media/b4_inliers_hilgard_12.jpg" alt="RANSAC inliers between hilgard_1 and hilgard_2"><figcaption>hilgard_1 and hilgard_2: the 64 inliers kept by RANSAC out of 137 matches.</figcaption></figure>
+    <figure class="wide"><img src="media/b4_inliers_street_12.jpg" alt="RANSAC inliers between street_1 and street_2"><figcaption>street_1 and street_2: 83 inliers out of 160 matches.</figcaption></figure>
+    <figure class="wide"><img src="media/b4_inliers_forest_12.jpg" alt="RANSAC inliers between forest_1 and forest_2"><figcaption>forest_1 and forest_2: 51 inliers out of 95 matches.</figcaption></figure>
+    <div class="table-wrap"><table>
+      <tr><th>Pair</th><th>Matches after ratio test</th><th>RANSAC inliers</th></tr>
+      <tr><td>hilgard_1, hilgard_2</td><td>137</td><td>64</td></tr>
+      <tr><td>hilgard_2, hilgard_3</td><td>128</td><td>50</td></tr>
+      <tr><td>street_1, street_2</td><td>160</td><td>83</td></tr>
+      <tr><td>street_2, street_3</td><td>116</td><td>74</td></tr>
+      <tr><td>forest_1, forest_2</td><td>95</td><td>51</td></tr>
+      <tr><td>forest_2, forest_3</td><td>85</td><td>32</td></tr>
+    </table></div>
+    <h3>Manual vs. Automatic Mosaics</h3>
+    <p>The automatic mosaics use the RANSAC homographies in place of the ones from my clicked points, with the same middle photo as the reference and the same two band blending as Part A. The manual mosaic is on the left and the automatic one is on the right. The automatic mosaics line up as well as the manual ones in the overlaps, and their outlines differ slightly because each homography is fit to a different set of points, 32 to 83 inliers instead of 8 clicks, so the two versions do not agree exactly away from the overlap.</p>
+    <div class="pair">
+      <figure><img src="media/mosaic_hilgard_two_band.jpg" alt="Hilgard Hall mosaic from clicked points"><figcaption>Hilgard Hall, manual.</figcaption></figure>
+      <figure><img src="media/auto_mosaic_hilgard.jpg" alt="Hilgard Hall mosaic from automatic matches"><figcaption>Hilgard Hall, automatic.</figcaption></figure>
+    </div>
+    <div class="pair">
+      <figure><img src="media/mosaic_street_two_band.jpg" alt="Street mosaic from clicked points"><figcaption>Street, manual.</figcaption></figure>
+      <figure><img src="media/auto_mosaic_street.jpg" alt="Street mosaic from automatic matches"><figcaption>Street, automatic.</figcaption></figure>
+    </div>
+    <div class="pair">
+      <figure><img src="media/mosaic_forest_two_band.jpg" alt="Wooded path mosaic from clicked points"><figcaption>Wooded path, manual.</figcaption></figure>
+      <figure><img src="media/auto_mosaic_forest.jpg" alt="Wooded path mosaic from automatic matches"><figcaption>Wooded path, automatic.</figcaption></figure>
+    </div>
+  </section>
+
   <footer>
     <div>Ayush Ghosh · CS 180: Intro to Computer Vision &amp; Computational Photography · UC Berkeley, Fall 2026</div>
     <div><a href="../">← All projects</a></div>
